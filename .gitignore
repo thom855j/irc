@@ -1,0 +1,7 @@
+/app/sys/etc/passwd/*
+
+/app/sys/dev/*
+
+/app/home/*
+
+/app/sys/tmp/*
