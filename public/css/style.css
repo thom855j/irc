@@ -16,10 +16,11 @@ form, p, span {
     padding:0;
 }
 
+/*
 form input[type="text"] {
     text-transform: lowercase;
 }
-  
+*/
   
 a {
     color: #00DB00;

@@ -1,29 +1,25 @@
 <?php
 
-session_save_path(APP . 'sys/tmp'); 
-
 session_name('session_id');
 
 session_start();
 
 $session = [];
 
-if( session()['auth'] ){
+if( Session::exists('auth') ){
 
-	$username = session()['username'];
+    $nickname = Session::get('nickname');
 
-    $host = session()['host'];
+    $channel = Session::get('channel');
 
-    $session['host'] = APP . "sys/dev/{$host}.dec";
+    $session['channel'] = APP . "sys/dev/{$channel}.channel";
 
-    $session['user'] = APP . "sys/etc/passwd/{$host}/{$username}.dec";
+    $session['user'] = APP . "sys/etc/passwd/{$channel}/{$nickname}.user";
 
-    $session['passwd'] = APP . "sys/etc/passwd/{$host}/";
+    $session['passwd'] = APP . "sys/etc/passwd/{$channel}/";
 
-    $session['storage'] = APP . "home/{$host}/{$username}/";
-
-    $session['log'] = APP . "log/{$host}.{$username}";
-
+    $session['log'] = APP . "log/{$channel}.{$nickname}.log";
+      
     $user_ip = getVisitorIP();
 
     $date = getTimestamp();

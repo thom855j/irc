@@ -1,31 +1,31 @@
 <?php
   
-    if (file_exists($session['host'])) {
+    if (file_exists($session['channel'])) {
 
-      $dec = new Encryptor(session()['key']);
+      $dec = new Encryptor(Session::get('key'));
 
-      $data = $dec->decrypt(file_get_contents($session['host']));
+      $data = $dec->decrypt(file_get_contents($session['channel']));
 
-      $username = session()['username'];
+      $nickname = Session::get('nickname');
 
-      $ip = session()['ip'];
+      $ip = Session::get('ip');
 
       if($data) {
 
-            $color = session()['color'];
+            $color = Session::get('color');
 
-              $data .= "<div user='{$username}' $color class='response'><i>[" . getTimestamp(false) . "] <<b>". $username ."</b>> (". $ip .") left session.</i><br></div>". PHP_EOL;
+              $data .= "<div user='{$nickname}' $color class='response'><i>[" . getTimestamp(false) . "] <<b>". $nickname ."</b>> (". $ip .") left channel.</i><br></div>". PHP_EOL;
 
               $data = $dec->encrypt($data);
 
-              file_put_contents($session['host'], $data);
+              file_put_contents($session['channel'], $data);
 
               unset($data);
 
       }
     }
 
-    logger('Logged out successfully.', $session['log']);
+    logger("{$nickname} left channel successfully.", $session['log']);
 
     session_clear();
 

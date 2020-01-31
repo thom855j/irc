@@ -1,34 +1,22 @@
 <?php
 
-if($input == 'sudo clear') {
+if($input == '/channel clear') {
 
         $data = '';
 
-        $input = "<i>session cleared by {$username}.</i>";
+        $input = "<i>channel cleared by @{$nickname}.</i>";
   
         $username = 'system';
 }
 
-if($input == 'sudo clear system') {
+if($input == '/system clear') {
 
   $data = preg_replace("/<div user='system' [^>]*>.*?<\/div>/i", '', $data);
       
   $data = $dec->encrypt($data);
 
-  file_put_contents($session['host'], $data);
+  file_put_contents($session['channel'], $data);
 
   $data = false;
 }
 
-
-if($input == 'scan') {
-
-    $hosts = cmdScan(APP . '/sys/dev/');
-
-    $input = '<br><br>';
-
-    foreach ($hosts as $host) {
-      $input .= $host . "<br>";
-      $input = str_replace('.dec', '', $input);
-    }
-}

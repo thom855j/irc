@@ -33,28 +33,6 @@ function getTimestamp($full_date = true) {
     }
 }
 
-function session($data = [], $append = false, $name = 'user') {
-
-
-    if( isset($_SESSION[$name]) && !$append) { 
-
-        return $_SESSION[$name];
-    }
-
-
-    if( !empty($data) && $append === false) {
-
-        return $_SESSION[$name] = $data;
-
-    } elseif(!empty($data) && $append === true) {
-
-        return $_SESSION[$name][$data[0]] = $data[1]; 
-    }
-
-    return false;
-
-} 
-
 function filterInput($input, $lowercase = false) {
 
     if($lowercase) {
@@ -82,8 +60,6 @@ function rrmdir($directory, $delete = false)
 
 function session_clear() {
 
-    // Finds all server sessions
-    session_start();
     // Stores in Array
     $_SESSION = array();
     // Swipe via memory
@@ -166,39 +142,50 @@ function cmdScan($dir)
     return array_values(array_diff(scandir($dir), array('..', '.')));
 }
 
-function cmdSSH($input, $storage = '') {
+function cmdJOIN($input, $storage = '') {
 
     $connection = [];
 
-    if( preg_match('/ssh/', $input) || preg_match('/connect/', $input)  ) {
+    if( preg_match('/join/', $input) ) {
 
 
                 $input = explode(' ', $input);
-
 
                 if(count($input) == 1) {
 
                     return false;
                 }
 
+                if( !preg_match('/#/', $input[1]) ) {
+
+                    return false;
+                }       
+                                
+               /**
+                * 0 = CMD
+                * 1 = #channel
+                * 2 = nickname@password
+                * 3 = key
+                */
 
                 if(count($input) == 3) {
 
-                    $connection['username'] = explode('@', $input[1])[0];
-                    $connection['password'] = false;
-                    $connection['host'] = explode('@', $input[1])[1];
-                    $connection['key'] = md5($input[2]);
-
-                } else {
-
-                    $connection['username'] = explode('@', $input[1])[0];
-                    $connection['password'] = false;
+                    $connection['channel'] = $input[1];
+                    $connection['nickname'] = explode('@', $input[2])[0];
+                    $connection['password'] = explode('@', $input[2])[1];
                     $connection['key'] = false;
-                    $connection['host'] = explode('@', $input[1])[1];
+                }
+
+                if(count($input) == 4) {
+
+                    $connection['channel'] = $input[1];
+                    $connection['nickname'] = explode('@', $input[2])[0];
+                    $connection['password'] = explode('@', $input[2])[1];                  
+                    $connection['key'] = md5($input[3]);
 
                 }
 
-                if( $connection['username'] =='' ||  $connection['host'] =='' ) {
+                if( !isset($connection['nickname']) ||  !isset($connection['channel']) ) {
 
                     return false;
                 }
@@ -207,7 +194,9 @@ function cmdSSH($input, $storage = '') {
 
         $connection['ip'] = getVisitorIP();
 
-        session($connection);
+        foreach($connection as $key => $value) {
+            Session::put($key, $value);
+        }
         
         return $connection;  
                 
@@ -215,4 +204,10 @@ function cmdSSH($input, $storage = '') {
 
      return false;
 
+}
+
+
+function dd($var) {
+    var_dump($var);
+    die;
 }

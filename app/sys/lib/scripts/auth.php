@@ -1,7 +1,7 @@
 <?php
 
 
-   $input = filterInput($_POST['input'], true);
+   $input = filterInput(Request::get('input'), false);
 
    if( checkBlacklist(getVisitorIP(), APP . 'sys/etc/blacklist') ) {
         echo '<br>ERROR: IP in blacklist. Login terminated!<br>';
@@ -11,48 +11,25 @@
 
     if($input == 'help') {
 
-        echo '<br>Use "ssh/connect user@host key(optional)" to login.<br>';
+        echo '<br>Use "/join [#channel] [nickname]@[password] (key)" to join IRC channel.<br>';
 
         return false;
     }
 
-    if( !session()['auth'] && !session()['password'] ){
-
-        $connection = cmdSSH($input, APP . 'sys/etc/passwd/');
-
+        $connection = cmdJOIN($input, APP . 'sys/etc/passwd/');
 
         if(!$connection) {
 
-            echo '<br>Missing parameters. Use "ssh/connect user@host key(optional)" to login.<br>';
-
-            return false;
-
-        } else {
-
-            $username = session()['username'];
-
-            $host = session()['host'];
-
-            echo "<br>{$username}@{$host}'s password/key:<br>";
-
-            session(['password', true], true);
+            echo '<br>Missing parameters. Use "/join [#channel] [nickname]@[password] (key)" to join IRC channel.<br>';
 
             return false;
 
         }
 
-    } 
 
+    if(Session::get('key'))  {
 
-    if(session()['password']) {
-
-        $password = $input;
-    }
-
-
-    if(session()['key'])  {
-
-        $dec = new Encryptor(session()['key']);  
+        $dec = new Encryptor(Session::get('key'));  
 
     } else {
 
@@ -61,21 +38,17 @@
     }
 
 
-    if(!session()['auth']) {
+        $nickname = Session::get('nickname');
 
-        $username = session()['username'];
+        $channel = Session::get('channel');
 
-        $host = session()['host'];
+        $session['channel'] = APP . "sys/dev/{$channel}.channel";
 
-        $session['host'] = APP . "sys/dev/{$host}.dec";
+        $session['user'] = APP . "sys/etc/passwd/{$channel}/{$nickname}.user";
 
-        $session['user'] = APP . "sys/etc/passwd/{$host}/{$username}.dec";
+        $session['passwd'] = APP . "sys/etc/passwd/{$channel}/";
 
-        $session['passwd'] = APP . "sys/etc/passwd/{$host}/";
-
-        $session['storage'] = APP . "home/{$host}/{$username}/";
-
-        $session['log'] = APP . "log/{$host}.{$username}";
+        $session['log'] = APP . "log/{$channel}.{$nickname}.log";
           
         $user_ip = getVisitorIP();
 
@@ -83,12 +56,8 @@
           
         $data = '';
 
-    }
-
-
- if( file_exists($session['host']) ) { 
-
-        $data = $dec->decrypt(file_get_contents($session['host']));
+if(file_exists($session['channel'])) {
+        $data = $dec->decrypt(file_get_contents($session['channel']));
 
         if(!$data) {
           
@@ -101,30 +70,30 @@
             return false;
         }
     }
-      
+    
     if(file_exists($session['user'])) {
 
-            $user = unserialize($dec->decrypt(file_get_contents($session['user'])));
+            $user = unserialize(file_get_contents($session['user']));
 
 
-            if(password_verify($password, $user['password'])) {
+            if(password_verify(Session::get('password'), $user['password'])) {
 
                $color = $user['color'];
 
-                $data .= "<div user='{$username}' $color class='response'><i>[" . $date . "] <<b>". $username ."</b>> (". $user_ip .") joined session.</i><br></div>". PHP_EOL;
+                $data .= "<div user='{$nickname}' $color class='response'><i>[" . $date . "] <b>@". $nickname ."</b> (". $user_ip .") joined channel.</i><br></div>". PHP_EOL;
 
                 //Simple welcome message
                 $data = $dec->encrypt($data);
 
-                file_put_contents($session['host'], $data);
+                file_put_contents($session['channel'], $data);
 
                 unset($data);
 
-                session(['color', $user['color']], true);
+                Session::put('color', $color);
 
-                session(['auth', true], true);
+                Session::put('auth', true);
 
-                logger('Connected to session.', $session['log']);
+                logger("{$nickname} joined channel.", $session['log']);
 
                 echo 'ok';
 
@@ -138,18 +107,18 @@
                     return false;
                 }
 
-                if( !isset(session()['token']) ) {
+                if( !Session::get('token') ) {
 
-                    session(['token', 1], true);
+                    Session::put('token', 1);
 
                 }
 
-                $token = session()['token'];
+                $token = Session::get('token');
                 
 
                 if( $token ) {
 
-                    session(['token', $token+1], true);
+                    Session::put('token', $token+1);
 
                     if($token == 4) {
 
@@ -164,8 +133,7 @@
 
                 }
 
-                echo "<br>ERROR: Existing user or invalid password/key. Please try again or create new user. {$token} failed attempts out of 3<br>";
-                echo "<br>{$username}@{$host}'s password/key:<br>";
+                echo "<br>ERROR: Invalid credentionals. Please try again or create new user. {$token} failed attempts out of 3<br>";
 
                 return false;
             }
@@ -173,45 +141,41 @@
 
 
         $session_data = [
+            'id' => uniqid($user_ip),
+            'joined' => getTimestamp(),
             'ip' => $user_ip,
-            'username' => filterInput($username, true),
-            'password' => password_hash($password, PASSWORD_DEFAULT),
-            'host' => filterInput($host, true),
+            'nickname' => filterInput(Session::get('nickname'), true),
+            'password' => password_hash(Session::get('password'), PASSWORD_DEFAULT),
+            'channel' => filterInput(Session::get('channel'), true),
             'color' => setColor(),
         ];
 
-       
-        if (!file_exists($session['storage'])) {
-
-            mkdir($session['storage'], 0777, true);
           
             if ( !file_exists($session['passwd']) ) {
           
                 mkdir($session['passwd'], 0777, true);
-
-                file_put_contents($session['user'], $dec->encrypt(serialize($session_data)));
             }
 
-        }
+        file_put_contents($session['user'], serialize($session_data));
 
         $color = $session_data['color'];
 
         //Simple welcome message
-        $data .= "<div user='{$username}' $color class='response'><i>[" . $date . "] <<b>". $username ."</b>> (". $user_ip .") joined session.</i><br></div>". PHP_EOL;
+        $data .= "<div user='{$nickname}' $color class='response'><i>[" . $date . "] <b>@". $nickname ."</b> (". $user_ip .") joined channel.</i><br></div>". PHP_EOL;
 
 
         $data = $dec->encrypt($data);
 
 
-        file_put_contents($session['host'], $data);
+        file_put_contents($session['channel'], $data);
 
         unset($data);
 
-        session(['auth', true], true);
+        Session::put('auth', true);
 
-        session(['color',  $session_data['color']], true);
+        Session::put('color', $color);
 
-        logger('Logged in successfully.', $session['log']);
+        logger("{$nickname} joined channel successfully.", $session['log']);
 
         echo 'ok';
 

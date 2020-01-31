@@ -1,13 +1,13 @@
-<?php if(session()['auth']): ?>
+<?php if(Session::exists('auth')): ?>
 
 <div id="wrapper">
     
     <?php include 'templates/nav.php' ?>   
   
-    <div id="terminal"><?php echo('Please wait... type "help" for more info'); ?></div>
+    <div id="terminal"><?php echo('Please wait... type "/help" for commands.'); ?></div>
   
     <form name="message">
-        <b><?php echo(session()['username']); ?>@<?php echo(session()['host']); ?> ></b> <input name="input" type="text" id="input" size="1024" />
+        <b><?php echo(Session::get('channel')); ?>@<?php echo(Session::get('nickname')); ?> ></b> <input name="input" type="text" id="input" size="1024" />
     </form>
 </div>
 
@@ -33,7 +33,7 @@ $(document).ready(function(){
         var client = $("#input").val();
 
         // Secret exit...
-        if(client == 'exit' || client == 'logout') {
+        if(client == '/quit' || client == '/part') {
            window.location = 'server.php?action=logout';
            return false;
         }

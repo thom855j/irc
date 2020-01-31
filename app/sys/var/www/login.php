@@ -1,4 +1,4 @@
-<?php if(!session()['auth']): ?>
+<?php if(!Session::exists('auth')): ?>
 
 <div id="wrapper">
     
@@ -8,8 +8,8 @@
         <br>
         <p> Welcome to <?php echo $_SERVER['SERVER_NAME']; ?>.</p>
         <p>It is <?php echo date('H:i', time()), " on ", date('l, F d, Y'); ?>.</p>
-        <?php if(isset($_COOKIE['session_visit'])): ?>
-        <p>Last visit: <?php echo $_COOKIE['session_visit']; ?></p>
+        <?php if( Cookie::get('session_visit') ): ?>
+        <p>Last visit: <?php echo Cookie::get('session_visit'); ?></p>
         <?php endif; ?>
         <br>
         <p>All connections are monitored and recorded.</p>

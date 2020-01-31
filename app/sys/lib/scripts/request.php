@@ -1,10 +1,10 @@
 <?php
 
-    $dec = new Encryptor(session()['key']);
+    $dec = new Encryptor(Session::get('key'));
   
-	if (file_exists($session['host'])) {
+	if (file_exists($session['channel'])) {
 
-    $data = $dec->decrypt(file_get_contents($session['host']));
+    $data = $dec->decrypt(file_get_contents($session['channel']));
       
     }
 

@@ -1,12 +1,3 @@
-#RewriteEngine On
-#RewriteCond %{HTTPS} !=on
-#RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
-
 RewriteEngine on
-#1) redirect the client 
-RewriteCond %{THE_REQUEST} /index\.php/(.+)\sHTTP [NC]
-RewriteRule ^ /%1 [NE,L,R]
-#2)internally map 
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteRule ^(.+)$ /index.php/$1 [L]
+RewriteCond %{REQUEST_URI} !^public
+RewriteRule ^(.*)$ public/$1 [L]
