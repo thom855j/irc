@@ -22,7 +22,7 @@
 
         $color = Session::get('color');
 
-        $data .= "<div user='{$nickname}' $color class='response'>[".getTimestamp(false)."] <b>@".$nickname."</b> ". $input ."<br></div>" . PHP_EOL;
+        $data .= "<div user='{$nickname}' $color class='response'>[".getTimestamp(false)."] <b><".$nickname."></b> ". $input ."<br></div>" . PHP_EOL;
   
         $data = $dec->encrypt($data);
 

@@ -80,7 +80,7 @@ if(file_exists($session['channel'])) {
 
                $color = $user['color'];
 
-                $data .= "<div user='{$nickname}' $color class='response'><i>[" . $date . "] <b>@". $nickname ."</b> (". $user_ip .") joined channel.</i><br></div>". PHP_EOL;
+                $data .= "<div user='{$nickname}' $color class='response'><i>[" . $date . "] <b><". $nickname ."></b> (". $user_ip .") joined channel.</i><br></div>". PHP_EOL;
 
                 //Simple welcome message
                 $data = $dec->encrypt($data);
@@ -161,7 +161,7 @@ if(file_exists($session['channel'])) {
         $color = $session_data['color'];
 
         //Simple welcome message
-        $data .= "<div user='{$nickname}' $color class='response'><i>[" . $date . "] <b>@". $nickname ."</b> (". $user_ip .") joined channel.</i><br></div>". PHP_EOL;
+        $data .= "<div user='{$nickname}' $color class='response'><i>[" . $date . "] <b><". $nickname ."></b> (". $user_ip .") joined channel.</i><br></div>". PHP_EOL;
 
 
         $data = $dec->encrypt($data);

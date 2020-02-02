@@ -14,7 +14,7 @@
 
             $color = Session::get('color');
 
-              $data .= "<div user='{$nickname}' $color class='response'><i>[" . getTimestamp(false) . "] <<b>". $nickname ."</b>> (". $ip .") left channel.</i><br></div>". PHP_EOL;
+              $data .= "<div user='{$nickname}' $color class='response'><i>[" . getTimestamp(false) . "] <b><". $nickname ."></b> (". $ip .") left channel.</i><br></div>". PHP_EOL;
 
               $data = $dec->encrypt($data);
 
