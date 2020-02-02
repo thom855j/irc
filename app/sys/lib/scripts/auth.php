@@ -61,7 +61,7 @@ if(file_exists($session['channel'])) {
 
         if(!$data) {
           
-            session_clear();
+            session_destroy();
 
             checkBlacklist(getVisitorIP(), APP . 'sys/etc/blacklist', true);
           
@@ -122,7 +122,7 @@ if(file_exists($session['channel'])) {
 
                     if($token == 4) {
 
-                        session_clear();
+                        session_destroy();
 
                         checkBlacklist(getVisitorIP(), APP . 'sys/etc/blacklist', true);
 

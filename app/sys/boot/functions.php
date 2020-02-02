@@ -124,8 +124,7 @@ function cmdJOIN($input, $storage = '') {
     $connection = [];
 
     if( preg_match('/join/', $input) ) {
-
-
+        
                 $input = explode(' ', $input);
 
                 if(count($input) == 1) {
