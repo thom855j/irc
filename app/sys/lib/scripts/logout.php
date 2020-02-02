@@ -27,6 +27,6 @@
 
     logger("{$nickname} left channel successfully.", $session['log']);
 
-    session_clear();
+    session_destroy();
 
     return header("Location: index.php?id=login"); //Redirect the user
